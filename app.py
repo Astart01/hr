@@ -28,23 +28,46 @@ def clean_text(text):
     text = text.translate(str.maketrans('', '', string.punctuation))
     return text
 
-# Функция для извлечения текста из PDF
 def extract_text_from_pdf(pdf_file):
     text = ""
     try:
-        with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
+        # Сохраняем во временный файл
+        import tempfile
+        import os
+        
+        # Создаем временную директорию, если её нет
+        os.makedirs('/tmp', exist_ok=True)
+        
+        # Сохраняем во временный файл
+        temp_path = f"/tmp/{pdf_file.name}"
+        with open(temp_path, 'wb') as f:
+            f.write(pdf_file.getbuffer())
+        
+        st.info(f"Файл сохранен по пути: {temp_path}")
+        
+        # Открываем PDF из файла
+        with fitz.open(temp_path) as doc:
             for page in doc:
                 text += page.get_text()
+        
+        # Удаляем временный файл
+        os.remove(temp_path)
+        
     except Exception as e:
         st.error(f"Ошибка при чтении PDF: {e}")
+        import traceback
+        st.code(traceback.format_exc())
+        
     return text
 
+# Функция для загрузки модели
 # Функция для загрузки модели
 @st.cache_resource
 def load_model():
     try:
         # Попытка загрузить существующую модель
-        pipeline = joblib.load(r'D:\ds\ds-phase-2-master\project\hr\resume_classifier.joblib')
+        import joblib
+        pipeline = joblib.load('resume_classifier.joblib')
         st.success("Модель успешно загружена из файла")
         return pipeline
     except Exception as e:
