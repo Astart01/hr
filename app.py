@@ -44,7 +44,7 @@ def extract_text_from_pdf(pdf_file):
 def load_model():
     try:
         # Попытка загрузить существующую модель
-        pipeline = joblib.load('resume_classifier.joblib')
+        pipeline = joblib.load(r'D:\ds\ds-phase-2-master\project\hr\resume_classifier.joblib')
         st.success("Модель успешно загружена из файла")
         return pipeline
     except Exception as e:
